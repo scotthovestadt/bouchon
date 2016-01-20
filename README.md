@@ -8,72 +8,126 @@ Efficient API mocking with cool libraries.
 
 ## Summary
 
-- [Why?](#why)
-- [How does it works?](#how-does-it-works)
-  - [Actions and Reducers](#actions-and-reducers)
-  - [Selectors](#selectors)
-  - [Middlewares](#middlewares)
-  - [Fixtures](#fixtures)
-- [Backend actions](#backend-actions)
-- [Combine fixtures](#combine-fixtures)
-- [bouchon API](#bouchon-api)
-  - [List of methods](#list-of-methods)
-- [Installation](#installation)
-- [Other related packages](#other-related-packages)
-- [License](#license)
+- [Big picture](#big-picture)
 
-## Why?
 
-Have you already been in such situation?
+## Big picture
 
-- you have to develop a feature but you don't have the API yet,
-- you have developed your feature but you can not fully test it with unexpected data or delayed responses,
-- you want to make some integration tests but you definitely don't want to setup a complex stack for that...
+Bouchon provides a way to make mocks easily with [redux](https://github.com/rackt/redux) and
+[reselect](https://github.com/rackt/reselect).
 
-If yes, this tool should be useful for you.
+Redux keeps your API stateful in order to create/edit/delete objects in your fake API and
+reselect allows to retrieve any data from that state.
 
-## How does it works?
+You define some data in a JSON file and your actions/reducers/selectors/middlewares/routes in a JS file.
+These two files [constitue] a fixture.
 
-bouchon is using two cool libraries written by Dan Abramov, widely used in the ReactJS world:
+Each route (HTTP Verb + url) defines an action, a selector and some optionnal middlewares.
 
-- "redux" to maintain the state of your API,
-- "reselect" to select data from your the state.
 
-If you are new to Redux and its vocabulary, I suggest you to read [the documentation](https://github.com/rackt/redux).
+## Basic example
 
-### Actions and reducers
+Follow the following instructions to make your first fixture.
 
-When receiving a request, bouchon is emitting an action handled by a reducer that updates the state. For example:
+Start an empty projet and create some folders and files:
 
-- If you are doing a GET, your reducer will just return the state,
-- If you are doing a POST, your reducer will add a new item to an exiting collection,
-- If you are doing a DELETE, your reducer will remove an item of an exiting collection,
-- etc.
+```
+$ mkdir fake-api && cd $_
+$ npm init
+$ npm install bouchon --save-dev
+$ mkdir fixtures/1-articles && cd $_
+$ touch data.json && touch articles.fixture.js
+```
 
-You can make your own actions and reducers, not necessarily based on the method of the request if you have a very special API to mock.
+### JSON data
+
+Each fixture defines a JSON files with some data:
+
+```
+// data.json
+
+[
+  {
+    "id": 1,
+    "title": "cillum eu esse",
+    "body": "Culpa in duis mollit ullamco minim quis ullamco eu.",
+    "date_created": "Tuesday, October 20, 2015 2:34 PM",
+    "author_id": 1
+  },
+  {
+    "id": 2,
+    "title": "voluptate labore cillum",
+    "body": "Veniam tempor mollit qui do quis ex. Anim fugiat adipisicing officia eiusmod.",
+    "date_created": "Thursday, October 23, 2014 1:34 PM",
+    "author_id": 2
+  }
+```
+
+### Actions
+
+In order to limit the boilerplate, bouchon uses [redux-act](https://github.com/pauldijou/redux-act)
+that provides a simpler API to create actions and reducers. No types and switch cases are required.
 
 ```js
+// articles.fixture.js
+
 import { createAction } from 'bouchon';
 
 const actions = {
-  get: createAction(),
-  post: createAction(),
-};
-
-const reducers = {
-  [actions.get]: state => state,
-  [actions.post]: (state, {params}) => {
-    return [
-      ...state,
-      params.body,
-    ];
-  }
+  get: createAction('Retrieve articles'),
+  post: createAction('Create an article'),
+  patch: createAction('Update an article'),
+  delete: createAction('Delete an article'),
 };
 ```
 
-A set of reducers for doing a RESTful API are available in the [bouchon-toolbox](https://github.com/cr0cK/bouchon-toolbox) repository.
+### Reducers
+
+Each route defined in your fixture will
 
 ### Selectors
+
+### Start bouchon
+
+
+## Advanced usage
+
+### Asynchronous actions
+
+### Delays
+
+### Middlewares
+
+### Combine fixtures
+
+### Use Babel for your fixture
+
+
+## Using Bouchon in integration tests
+
+### Bouchon API
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Selectors allow to select a part of your state. They are customisable, composable, exportable, etc.
 
