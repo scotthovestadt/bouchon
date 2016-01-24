@@ -9,6 +9,7 @@ Efficient API mocking with cool libraries.
 ## Summary
 
 - [Big picture](#big-picture)
+- [Before using bouchon](#before-using-bouchon)
 - [Quick start](#quick-start)
   - [JSON data](#json-data)
   - [Actions](#actions)
@@ -39,20 +40,30 @@ Efficient API mocking with cool libraries.
 Bouchon provides a way to make mocks easily with [redux](https://github.com/rackt/redux) and
 [reselect](https://github.com/rackt/reselect).
 
-Redux keeps your API stateful in order to create/edit/delete objects in your fake API and
+Redux keeps your API stateful in order to create / edit / delete objects in a fake API and
 reselect allows to retrieve any data from that state.
 
-You define some data in a JSON file and your actions/reducers/selectors/middlewares/routes in a JS file.
+You define some data in a JSON file and your actions / reducers / selectors / middlewares / routes in a JS file.
 These two files is what I call a _fixture_.
 
 Each route (verb + url) defines an action, a selector and some optionnal middlewares.
+
+
+## Before using bouchon
+
+It is advisable to be comfortable with the following softs and techniques for using bouchon:
+
+- [redux](https://github.com/rackt/redux)
+- [reselect](https://github.com/rackt/reselect)
+- [Currying techniques](http://www.sitepoint.com/currying-in-functional-javascript/)
+- [ES2015](https://babeljs.io/docs/learn-es2015/)
 
 
 ## Quick start
 
 Follow the following instructions to make your first fixture. The full code is available in `./tests/0-readme-tutorial`.
 
-Start an empty projet, install bouchon and create folders and files:
+Start an empty project, [install bouchon](#installation) and create folders and files:
 
 ```
 $ mkdir bouchon-tutorial && cd $_
@@ -121,6 +132,9 @@ selectors.byId = ({id}) => createSelector(
 );
 ```
 
+- The first curried function takes a merge of query, params and body parameters.
+- The second takes the full `state` allowing to select any part of data.
+
 ### Reducers
 
 Like every redux apps, you have to implement reducers that will maintain the state according to dispathed actions.
@@ -136,9 +150,9 @@ and the syntax is different that one you may know):
 
 const reducer = {
   [actions.get]: state => state,
-  [actions.post]: (state, params) => ([
+  [actions.post]: (state, {body}) => ([
     ...state,
-    params.body,
+    body,
   ]),
   [actions.delete]: (state, {params}) => {
     const copy = state.slice(0);    // be careful to never mutate the state
@@ -146,6 +160,10 @@ const reducer = {
   },
 };
 ```
+
+Each function of the reducer takes the `state` the current fixture (not the full state)
+and an object with `req`, `res`, `query` parameters, `params` parameters, `body` parameters
+and must return a new state (be careful to _NEVER_ mutate the state).
 
 ### Routes
 
@@ -181,7 +199,7 @@ const routes: {
 
 ### Summary
 
-It's almost done. It remains to add a `name` used to store the JSON in the state, the `data` and it should be ok.
+Add a `name` that will be used as the key in the state where your `data` live and you're done.
 
 See the full fixture:
 
