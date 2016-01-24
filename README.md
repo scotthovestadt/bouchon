@@ -61,7 +61,8 @@ It is advisable to be comfortable with the following softs and techniques for us
 
 ## Quick start
 
-Follow the following instructions to make your first fixture. The full code is available in `./tests/0-readme-tutorial`.
+Follow the following instructions to make your first fixture. The full code is available in
+[the repository](https://github.com/cr0cK/bouchon/tree/master/tests/0-readme-tutorials).
 
 Start an empty project, [install bouchon](#installation) and create folders and files:
 
@@ -163,7 +164,7 @@ const reducer = {
 
 Each function of the reducer takes the `state` the current fixture (not the full state)
 and an object with `req`, `res`, `query` parameters, `params` parameters, `body` parameters
-and must return a new state (be careful to _NEVER_ mutate the state).
+and must return a new state (be careful to *NEVER* mutate the state).
 
 ### Routes
 
@@ -334,7 +335,7 @@ actions and reuse them in any fixture.
 
 In the same way, you can export selectors.
 
-Image that you have 2 fixtures like articles and authors. If you want to join the data of both
+Imagine that you have 2 fixtures like articles and authors. If you want to join the data of both
 in a single request, you can do something like that:
 
 ```js
@@ -437,8 +438,8 @@ with the payload data of my operation,
 - the operation is flagged as 'DONE',
 - I can do a GET on `./articles` to list all created articles.
 
-See how you can export/import actions and selectors and how to decalare your route
-with `backendActions` in `./tests/0-readme-tutorials/async-articles`.
+See how you can export / import actions and selectors and how to define your route
+with `backendActions` in [this sample](https://github.com/cr0cK/bouchon/tree/master/tests/0-readme-tutorials).
 
 
 ### Delays
