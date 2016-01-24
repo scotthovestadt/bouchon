@@ -23,6 +23,15 @@ Efficient API mocking with cool libraries.
   - [Multiple actions](#multiple-actions)
   - [Backend actions](#backend-actions)
   - [Asynchronous sample](#asynchronous-sample)
+  - [Delays](#delays)
+  - [Middlewares](#middlewares)
+  - [Combine fixtures](#combine-fixtures)
+  - [Use Babel for your fixtures](#use-babel-for-your-fixtures)
+- [Bouchon full API](#bouchon-full-api)
+- [Use bouchon for integration testing](#use-bouchon-for-integration-testing)
+- [Installation](#installation)
+- [Other related packages](#other-related-packages)
+- [License](#license)
 
 
 ## Big picture
@@ -519,7 +528,7 @@ Check it there https://github.com/cr0cK/bouchon/blob/master/tests/0-readme-tutor
 
 TODO
 
-## Using bouchon for integration tests
+## Use bouchon for integration testing
 
 Bouchon is providing an API useful for integration tests.
 
