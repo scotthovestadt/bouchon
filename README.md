@@ -9,6 +9,24 @@ Efficient API mocking with cool libraries.
 ## Summary
 
 - [Big picture](#big-picture)
+- [Quick start](#quick-start)
+
+  - [JSON data](#json-data)
+  - [Actions](#actions)
+  - [Selectors](#selectors)
+  - [Reducers](#reducers)
+  - [Routes](#routes)
+  - [Summary](#summary)
+  - [Start bouchon](#start-bouchon)
+
+- [Advanced usage](#advanced-usage)
+
+  - [Export actions](#export-actions)
+  - [Export selectors](#export-selectors)
+  - [Multiple actions](#multiple-actions)
+  - [Backend actions](#backend-actions)
+  - [Asynchronous sample](#asynchronous-sample)
+
 
 
 ## Big picture
@@ -20,9 +38,9 @@ Redux keeps your API stateful in order to create/edit/delete objects in your fak
 reselect allows to retrieve any data from that state.
 
 You define some data in a JSON file and your actions/reducers/selectors/middlewares/routes in a JS file.
-These two files [constitue] a fixture.
+These two files is what I call a _fixture_.
 
-Each route (HTTP Verb + url) defines an action, a selector and some optionnal middlewares.
+Each route (verb + url) defines an action, a selector and some optionnal middlewares.
 
 
 ## Quick start
@@ -156,7 +174,7 @@ const routes: {
 };
 ```
 
-### The final touch
+### Summary
 
 It's almost done. It remains to add a `name` used to store the JSON in the state, the `data` and it should be ok.
 
@@ -276,9 +294,128 @@ $ curl http://localhost:3000/articles  | python -mjson.tool
 Hey, it works!
 
 
-### Asynchronous actions
+## Advanced usage
 
-TODO
+Now that you have an idea of how bouchon works, let's continue with complex workflows.
+
+### Export actions
+
+You should split your data and fixture by API namespace.
+For example, if you have `./api/articles` and `./api/operations`, make two fixtures
+that each handles their data.
+
+But if you need to alter the state of an another fixture, you can export your
+actions and reuse them in any fixture.
+
+### Export selectors
+
+In the same way, you can export selectors.
+
+Image that you have 2 fixtures like articles and authors. If you want to join the data of both
+in a single request, you can do something like that:
+
+```js
+// authors/index.js
+
+export const selectors = {}
+selectors.all = () => state => state.authors;
+
+export default {
+  name: 'authors',
+  data: require('./data.json'),
+};
+
+// [...]
+
+// articles/index.js
+
+import { createSelector } from 'bouchon';
+import { selectors as authorsSelectors } from '../authors';
+
+export const selectors = {};
+selectors.all = () => state => state.articles;
+
+selectors.allWithAuthors = () => createSelector(
+  selectors.all(),
+  authorsSelectors.all(),
+  (articles, authors) => {
+    return articles.map(art => ({
+      ...art,
+      author: authors.filter(auth => Number(auth.id) === Number(art.authorId)).pop(),
+    }));
+  }
+);
+
+const routes = {
+  'GET /': {
+    selector: selectors.allWithAuthors,
+    status: 200,
+  },
+};
+
+export default {
+  name: 'articles',
+  data: require('./data.json'),
+  routes: routes,
+};
+```
+
+### Multiple actions
+
+Because your data is splitted into several fixture, you should have the need to alter the state
+of several parts of your state for a single request.
+
+For achieve that, you can use several action for a route. Each action will be dispatched and will update
+the state according to your reducers.
+
+```js
+const routes = {
+  'POST /': {
+    action: [articlesActions.create, operationsActions.setToDone],
+    selector: selectors.byId,
+    status: 200,
+  },
+};
+```
+
+### Backend actions
+
+In some use cases, the workflow can be asynchronous. For example, an API request can just
+respond "OK" and save an object in a queue processed later by a backend process.
+
+Bouchon provides a feature named 'backendAction' that allows to dispatch an action
+in the future in order to simulate a backend process.
+
+See how to return an object identifier in the request's response and create the object
+five seconds later.
+
+```js
+const routes = {
+  'POST /': {
+    action: operationsActions.create,
+    backendAction: {
+      action: [actions.create, operationsActions.setToDone],
+      delay: 5000,
+    },
+    selector: operationsSelectors.lastId,
+    status: 201,
+  },
+};
+```
+
+### Asynchronous sample
+
+To illustrate all the previous options, image that workflow:
+
+- When I POST a request on `./articles`, it returns the detail of an operation
+that contains the payload data and that will be handled later.
+- When the operation has been processed, my article is created in the database
+with the payload data of my operation.
+- Then, the operation is flagged as 'DONE'.
+
+See how I have exported/imported my actions and how backendActions does the job five seconds later
+my POST request in `./tests/0-readme-tutorials/async-articles`.
+
 
 ### Delays
 
